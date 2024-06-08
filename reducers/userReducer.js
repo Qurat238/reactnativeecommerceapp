@@ -42,10 +42,12 @@ export const deleteUserReset = createAction("deleteUserReset");
 export const forgotPasswordRequest = createAction("forgotPasswordRequest");
 export const forgotPasswordSuccess = createAction("forgotPasswordSuccess");
 export const forgotPasswordFail = createAction("forgotPasswordFail");
+export const forgotPasswordReset = createAction("forgotPasswordReset");
 
 export const resetPasswordRequest = createAction("resetPasswordRequest");
 export const resetPasswordSuccess = createAction("resetPasswordSuccess");
 export const resetPasswordFail = createAction("resetPasswordFail");
+export const resetPasswordReset = createAction("resetPasswordReset");
 
 export const allUsersRequest = createAction("allUsersRequest");
 export const allUsersSuccess = createAction("allUsersSuccess");
@@ -229,7 +231,7 @@ export const forgotPassword = (email) => async(dispatch) => {
 }
 
 //Reset Password
-export const resetPassword = (token, passwords) => async(dispatch) => {
+export const resetPassword = (passwords) => async(dispatch) => {
   try {
       dispatch(resetPasswordRequest());
       
@@ -240,7 +242,7 @@ export const resetPassword = (token, passwords) => async(dispatch) => {
       };
 
       const {data} = await axios.put(
-          `${serverUrl}/api/v1/password/reset/${token}`,
+          `${serverUrl}/api/v1/password/reset`,
           passwords,
           config
       )
@@ -435,6 +437,9 @@ export const forgotPasswordReducer = createReducer(
         state.loading = false;
         state.error = action.payload;
       })
+      .addCase(forgotPasswordReset, (state, action) => {
+        state.message = null;
+      })
       .addCase(resetPasswordRequest, (state) => {
         state.loading = true;
         state.error = null;
@@ -446,6 +451,9 @@ export const forgotPasswordReducer = createReducer(
       .addCase(resetPasswordFail, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(resetPasswordReset, (state, action) => {
+        state.success = null;
       })
       .addCase(clearError, (state) => {
         state.error = null;

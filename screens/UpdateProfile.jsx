@@ -1,20 +1,34 @@
-import { View, Text, TextInput, StyleSheet, Platform, StatusBar, SafeAreaView, TouchableOpacity } from 'react-native';
-import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { clearError, loadUser, updateProfile, updateProfileReset } from '../reducers/userReducer';
-import mime from 'mime';
-import { Avatar, Button } from 'react-native-paper';
-import Loader from '../components/Loader';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Platform,
+  StatusBar,
+  SafeAreaView,
+  TouchableOpacity,
+} from "react-native";
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  clearError,
+  loadUser,
+  updateProfile,
+  updateProfileReset,
+} from "../reducers/userReducer";
+import mime from "mime";
+import { Avatar, Button } from "react-native-paper";
+import Loader from "../components/Loader";
 
-const UpdateProfile = ({navigation, route}) => {
+const UpdateProfile = ({ navigation, route }) => {
   const dispatch = useDispatch();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [avatar, setAvatar] = useState("");
 
-  const {user, loading} = useSelector((state) => state.user);
-  const {error, isUpdated} = useSelector((state) => state.profile);
+  const { user, loading } = useSelector((state) => state.user);
+  const { error, isUpdated, loading:updateLoading } = useSelector((state) => state.profile);
 
   const updateProfileHandler = () => {
     const myForm = new FormData();
@@ -24,7 +38,7 @@ const UpdateProfile = ({navigation, route}) => {
       myForm.append("avatar", {
         uri: avatar,
         type: mime.getType(avatar),
-        name: avatar.split("/").pop()
+        name: avatar.split("/").pop(),
       });
     }
     dispatch(updateProfile(myForm));
@@ -51,46 +65,49 @@ const UpdateProfile = ({navigation, route}) => {
     }
   }, [dispatch, route, error, isUpdated, navigation, user]);
 
-  const handleImage = async() => {
+  const handleImage = async () => {
     navigation.navigate("picker", {
-      updateProfile: true
+      updateProfile: true,
     });
   };
 
   return (
     <View style={styles.container}>
-      {loading ? <Loader/> : 
-        <SafeAreaView>
-        <Avatar.Image
-          size={130}
-          source={{uri: avatar ? avatar : null}}
-          style={styles.avatar}
-        />
-        <TouchableOpacity onPress={handleImage}>
-          <Text style={styles.avatarLink}>Change Photo</Text>
-        </TouchableOpacity>
-        <View>
-          <TextInput
-            style={styles.input}
-            placeholder="Name"
-            value={name}
-            onChangeText={setName}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-          />
+      {loading | updateLoading ? (
+        <Loader />
+      ) : (
+        <View style={styles.formContainer}>
+          <SafeAreaView>
+            <Avatar.Image
+              size={130}
+              source={{ uri: avatar ? avatar : null }}
+              style={styles.avatar}
+            />
+            <TouchableOpacity onPress={handleImage}>
+              <Text style={styles.avatarLink}>Change Photo</Text>
+            </TouchableOpacity>
+            <View>
+              <TextInput
+                style={styles.input}
+                placeholder="Name"
+                value={name}
+                onChangeText={setName}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Email"
+                value={email}
+                onChangeText={setEmail}
+              />
+            </View>
+            <Button style={styles.btn} onPress={updateProfileHandler}>
+              <View>
+                <Text style={styles.btnText}>Change</Text>
+              </View>
+            </Button>
+          </SafeAreaView>
         </View>
-        <Button
-          style={styles.btn}
-          onPress={updateProfileHandler}
-        >
-          <Text style={styles.btnText}>Change</Text>
-        </Button>
-      </SafeAreaView>
-      }
+      )}
     </View>
   );
 };
@@ -100,22 +117,24 @@ export default UpdateProfile;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#E8E7E8",
+  },
+  formContainer: {
+    flex: 1,
+    backgroundColor: "#283148",
     justifyContent: "center",
     padding: 20,
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
   avatar: {
     backgroundColor: "#000",
     alignSelf: "center",
   },
   avatarLink: {
-    color: "#900",
+    color: "#fff",
     textAlign: "center",
-    fontSize: 20,
+    fontSize: 25,
     margin: 20,
-    color: "#000",
-    fontWeight: "600"
+    fontWeight: "600",
   },
   input: {
     backgroundColor: "#fff",
@@ -125,16 +144,19 @@ const styles = StyleSheet.create({
     paddingLeft: 15,
     borderRadius: 5,
     marginVertical: 15,
-    fontSize: 20
+    fontSize: 20,
+    fontWeight:"900"
   },
   btn: {
-    backgroundColor: "#900",
-    padding: 13,
+    backgroundColor: "#FF9B42",
+    padding: 10,
+    paddingTop: 15,
     borderRadius: 50,
-    marginTop: 20
+    marginTop: 20,
   },
   btnText: {
     color: "#fff",
-    fontSize: 20
-  }
+    fontSize: 25,
+    fontWeight: "900",
+  },
 });

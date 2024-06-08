@@ -4,7 +4,7 @@ import { Button } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { saveShippingInfo } from '../reducers/cartReducer';
-
+import Icon2 from "react-native-vector-icons/MaterialIcons";
 
 const Shipping = () => {
 
@@ -30,7 +30,17 @@ const Shipping = () => {
   return (
     <View style={styles.container}>
       <SafeAreaView>
-      <Text style={styles.heading}>Shipping Details</Text>
+      <View style={styles.headingContainer}>
+              <Button
+                style={{ marginTop: 10 }}
+                onPress={() => navigation.navigate("cart")}
+              >
+                <View>
+                  <Icon2 name="arrow-back" size={30} color="white" />
+                </View>
+              </Button>
+              <Text style={styles.heading}>Shipping</Text>
+            </View>
       <View>
         <TextInput
             style={styles.input}
@@ -67,7 +77,7 @@ const Shipping = () => {
         style={styles.btn}
         onPress={shippingHandler}
       >
-        <Text style={styles.btnText}>Continue</Text>
+        <View><Text style={styles.btnText}>Continue</Text></View>
       </Button>
       </SafeAreaView>
     </View>
@@ -80,18 +90,25 @@ const styles = StyleSheet.create({
 
     container: {
         flex: 1,
-        backgroundColor: "#E8E7E8",
+        backgroundColor: "#283148",
         justifyContent: "center",
         padding:20,
         paddingTop: Platform.OS==="android" ? StatusBar.currentHeight : 0
     },
-    heading: {
-        fontSize: 45, 
+    headingContainer: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "flex-start",
+      },
+      heading: {
+        fontSize: 50,
         fontWeight: "900",
-        margin:40, 
-        marginLeft:5,
-        alignSelf:"center"
-    },
+        margin: 40,
+        marginLeft: 50,
+        alignSelf: "center",
+        color: "#fff",
+      },
     input: {
         backgroundColor: "#fff",
         borderWidth: 1,
@@ -100,16 +117,19 @@ const styles = StyleSheet.create({
         paddingLeft: 15,
         borderRadius: 5,
         marginVertical: 15,
-        fontSize: 20
+        fontSize: 20,
+        fontWeight:"900"
     },
     btn: {
-        backgroundColor: "#900",
-        padding: 13,
+        backgroundColor: "#FF9B42",
+        padding: 10,
+        paddingTop:15,
         borderRadius: 50,
         marginTop:20
     },
     btnText: {
         color: "#fff", 
-        fontSize: 20
+        fontSize: 25,
+        fontWeight:"900"
     }
 });

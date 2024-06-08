@@ -2,41 +2,50 @@ import {
   View,
   Text,
   TextInput,
-  SafeAreaView,
+  StyleSheet,
+  ScrollView,
   Platform,
   StatusBar,
-  StyleSheet,
+  SafeAreaView,
   TouchableOpacity,
-  ScrollView,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Button } from "react-native-paper";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  clearErrors,
-  createProduct,
-  newProductReset,
-} from "../reducers/productReducer";
-import { Button } from "react-native-paper";
 import { Picker } from "@react-native-picker/picker";
 import { Avatar } from "react-native-paper";
 import mime from "mime";
 import Loader from "../components/Loader";
 import Icon2 from "react-native-vector-icons/MaterialIcons";
+import {
+  clearErrors,
+  getProductDetails,
+  updateProduct,
+  updateProductReset,
+} from "../reducers/productReducer";
 
-const CreateProduct = () => {
+const ProcessProduct = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const route = useRoute();
 
-  const { loading, error, success } = useSelector((state) => state.newProduct);
+  const { id } = route.params;
+
+  const { error, product, loading } = useSelector(
+    (state) => state.productDetails
+  );
+  const { error: updateError, isUpdated } = useSelector(
+    (state) => state.product
+  );
 
   const [name, setName] = useState("");
   const [price, setPrice] = useState(0);
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const [stock, setStock] = useState(0);
+  const [stock, setStock] = useState("");
   const [images, setImages] = useState([]);
+  const [oldImages, setOldImages] = useState([]);
 
   const categories = [
     "Tops",
@@ -48,7 +57,7 @@ const CreateProduct = () => {
     "Tracksuits",
   ];
 
-  const createProductSubmitHandler = () => {
+  const updateProductSubmitHandler = () => {
     const myForm = new FormData();
     myForm.append("name", name);
     myForm.append("price", price);
@@ -63,12 +72,13 @@ const CreateProduct = () => {
         name: image.split("/").pop(),
       });
     });
-    dispatch(createProduct(myForm));
+    dispatch(updateProduct(id, myForm));
   };
 
   const handleImage = async () => {
     navigation.navigate("picker", {
-      createProduct: true,
+      updateProduct: true,
+      id: id,
       onSelectImages: onSelectImages,
     });
   };
@@ -78,6 +88,24 @@ const CreateProduct = () => {
   };
 
   useEffect(() => {
+    if (!loading) {
+      const fetchData = async () => {
+        if (product && product._id !== id) {
+          await dispatch(getProductDetails(id));
+        }
+      };
+      fetchData();
+    }
+
+    if (product && !loading && product._id === id) {
+      setName(product.name);
+      setDescription(product.description);
+      setPrice(product.price);
+      setCategory(product.category);
+      setStock(product.stock);
+      setOldImages(product.images.map((image) => image.url));
+    }
+
     if (route.params && route.params.image) {
       const selectedImage = route.params.image;
       setImages((prevImages) => [...prevImages, selectedImage]);
@@ -87,13 +115,27 @@ const CreateProduct = () => {
       alert(error);
       dispatch(clearErrors());
     }
-
-    if (success) {
-      alert("Product Created Successfully");
-      navigation.navigate("dashboard");
-      dispatch(newProductReset());
+    if (updateError) {
+      alert(updateError);
+      dispatch(clearErrors());
     }
-  }, [route, alert, dispatch, error, success, navigation]);
+    if (isUpdated) {
+      alert("Product Updated Successfully");
+      navigation.navigate("dashboard");
+      dispatch(updateProductReset());
+    }
+  }, [
+    route,
+    dispatch,
+    id,
+    alert,
+    error,
+    updateError,
+    loading,
+    product,
+    navigation,
+    isUpdated,
+  ]);
 
   return (
     <View style={styles.mainContainer}>
@@ -105,13 +147,13 @@ const CreateProduct = () => {
             <View style={styles.headingContainer}>
               <Button
                 style={{ marginTop: 10 }}
-                onPress={() => navigation.navigate("dashboard")}
+                onPress={() => navigation.navigate("allproducts")}
               >
                 <View>
                   <Icon2 name="arrow-back" size={30} color="white" />
                 </View>
               </Button>
-              <Text style={styles.heading}>Create</Text>
+              <Text style={styles.heading}>Update</Text>
             </View>
             <View>
               <TextInput
@@ -160,29 +202,34 @@ const CreateProduct = () => {
               }}
             >
               <ScrollView horizontal={true}>
-                {images ? (
-                  images.map((avatar, index) => (
-                    <Avatar.Image
-                      key={index}
-                      size={60}
-                      source={{ uri: avatar ? avatar : "" }}
-                      style={styles.avatar}
-                    />
-                  ))
-                ) : (
-                  <View style={styles.circle}></View>
-                )}
+                {images && images.length > 0
+                  ? images.map((avatar, index) => (
+                      <Avatar.Image
+                        key={index}
+                        size={60}
+                        source={{ uri: avatar ? avatar : "" }}
+                        style={styles.avatar}
+                      />
+                    ))
+                  : oldImages.map((avatar, index) => (
+                      <Avatar.Image
+                        key={index}
+                        size={60}
+                        source={{ uri: avatar ? avatar : "" }}
+                        style={styles.avatar}
+                      />
+                    ))}
               </ScrollView>
               <TouchableOpacity>
                 <Text onPress={handleImage} style={styles.avatarLink}>
-                  Select
+                  Change
                 </Text>
               </TouchableOpacity>
             </View>
 
-            <Button style={styles.btn} onPress={createProductSubmitHandler}>
+            <Button style={styles.btn} onPress={updateProductSubmitHandler}>
               <View>
-                <Text style={styles.btnText}>Create</Text>
+                <Text style={styles.btnText}>Update</Text>
               </View>
             </Button>
           </SafeAreaView>
@@ -192,7 +239,7 @@ const CreateProduct = () => {
   );
 };
 
-export default CreateProduct;
+export default ProcessProduct;
 
 const styles = StyleSheet.create({
   mainContainer: {

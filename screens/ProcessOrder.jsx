@@ -7,15 +7,22 @@ import {
   StatusBar,
   Image,
   ScrollView,
-  Dimensions,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import { clearErrors, getOrderDetails } from "../reducers/orderReducer";
+import {
+  clearErrors,
+  getOrderDetails,
+  updateOrder,
+  updateOrderReset,
+} from "../reducers/orderReducer";
+import Icon2 from "react-native-vector-icons/MaterialIcons";
+import { Button } from "react-native-paper";
 import Loader from "../components/Loader";
+import { Picker } from "@react-native-picker/picker";
 
-const Order = () => {
+const ProcessOrder = () => {
   const dispatch = useDispatch();
   const route = useRoute();
   const navigation = useNavigation();
@@ -24,13 +31,19 @@ const Order = () => {
   const [phoneNo, setPhoneNo] = useState("");
   const [address, setAddress] = useState("");
   const [amount, setAmount] = useState("");
+
+  const [status, setStatus] = useState("");
+
   const [purchasedItems, setPurchasedItems] = useState([]);
 
   const { order, loading, error } = useSelector((state) => state.orderDetails);
+  const { error: updateError, isUpdated } = useSelector((state) => state.order);
 
   const { id } = route.params;
 
-  const { width, height } = Dimensions.get("window");
+  const processOrderSubmitHandler = () => {
+    dispatch(updateOrder(id, { status }));
+  };
 
   useEffect(() => {
     if (!loading) {
@@ -53,7 +66,27 @@ const Order = () => {
       alert(error);
       dispatch(clearErrors());
     }
-  }, [dispatch, error, alert, id, loading, order]);
+    if (updateError) {
+      alert(updateError);
+      dispatch(clearErrors());
+    }
+    if (isUpdated) {
+      setStatus("");
+      alert("Order Updated Successfully");
+      navigation.navigate("dashboard");
+      dispatch(updateOrderReset());
+    }
+  }, [
+    dispatch,
+    error,
+    alert,
+    id,
+    loading,
+    order,
+    navigation,
+    isUpdated,
+    updateError,
+  ]);
 
   return (
     <View style={styles.mainContainer}>
@@ -62,6 +95,42 @@ const Order = () => {
       ) : (
         <View style={styles.container}>
           <SafeAreaView>
+            <View style={styles.headingContainer}>
+              <Button
+                style={styles.backBtn}
+                onPress={() => navigation.navigate("allorders")}
+              >
+                <View>
+                  <Icon2 name="arrow-back" size={30} color="white" />
+                </View>
+              </Button>
+              <Text style={styles.orderHeading}>Process Order</Text>
+            </View>
+
+            <View style={styles.selectContainer}>
+              <Picker
+                style={styles.input}
+                selectedValue={status}
+                onValueChange={(itemValue) => setStatus(itemValue)}
+              >
+                <Picker.Item label="Choose Category" value="" />
+                {order && order.orderStatus === "Processing" && (
+                  <Picker.Item label="Shipped" value="Shipped" />
+                )}
+                {order && order.orderStatus === "Shipped" && (
+                  <Picker.Item label="Delivered" value="Delivered" />
+                )}
+              </Picker>
+              <Button
+                style={styles.processBtn}
+                onPress={processOrderSubmitHandler}
+              >
+                <View>
+                  <Text style={styles.processBtnText}>Process</Text>
+                </View>
+              </Button>
+            </View>
+
             <Text style={styles.subHeading}>Shipping Details</Text>
             <View style={styles.orderDetailsContainer}>
               <View style={styles.details}>
@@ -91,7 +160,7 @@ const Order = () => {
             </View>
 
             <Text style={styles.subHeading}>Purchased Items</Text>
-            <View style={{ height: height * 0.388, marginBottom: 10 }}>
+            <View style={{ height: 235, marginBottom: 10 }}>
               <ScrollView>
                 {purchasedItems.map((item) => (
                   <View key={item.product} style={styles.purchasedItem}>
@@ -120,7 +189,7 @@ const Order = () => {
   );
 };
 
-export default Order;
+export default ProcessOrder;
 
 const styles = StyleSheet.create({
   mainContainer: {
@@ -133,31 +202,49 @@ const styles = StyleSheet.create({
     padding: 15,
     paddingTop: 40,
   },
+  headingContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+  },
+  orderHeading: {
+    fontSize: 40,
+    fontWeight: "900",
+    margin: 10,
+    color: "#fff",
+    marginLeft: 20,
+    marginBottom: 20,
+  },
+  input: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#F9F6EE",
+    padding: 20,
+    paddingLeft: 15,
+    borderRadius: 5,
+    marginVertical: 15,
+    fontSize: 20,
+    fontWeight: "900",
+  },
+  processBtn: {
+    backgroundColor: "#FF9B42",
+    padding: 10,
+    paddingTop: 15,
+    borderRadius: 50,
+    marginBottom: 30,
+  },
+
+  processBtnText: {
+    color: "#fff",
+    fontSize: 25,
+    fontWeight: "900",
+  },
   subHeading: {
     fontSize: 35,
     marginBottom: 20,
     marginLeft: 5,
     color: "#fff",
-    marginTop: 25,
-  },
-  orderDetailsContainer: {
-    backgroundColor: "#fff",
-    padding: 20,
-    marginBottom: 10,
-    borderRadius: 10,
-  },
-  detailsContainer: {
-    backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  details: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  detail: {
-    fontSize: 23,
   },
   purchasedItem: {
     backgroundColor: "#FF9B42",
@@ -188,5 +275,41 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginRight: 15,
     color: "#fff",
+  },
+  orderDetailsContainer: {
+    backgroundColor: "#fff",
+    padding: 20,
+    marginBottom: 10,
+    borderRadius: 10,
+  },
+  detailsContainer: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  details: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  detail: {
+    fontSize: 23,
+  },
+  line: {
+    height: 2,
+    marginTop: 10,
+    marginBottom: 10,
+    backgroundColor: "#283148",
+  },
+  btn: {
+    backgroundColor: "#fff",
+    height: 50,
+    marginTop: 20,
+    paddingTop: 10,
+  },
+  btnText: {
+    fontSize: 25,
+    fontWeight: "900",
+    color: "#283148",
   },
 });

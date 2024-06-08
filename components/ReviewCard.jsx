@@ -28,7 +28,7 @@ export default ReviewCard;
 
 const Styles = StyleSheet.create({
     container:{
-        backgroundColor:"#283148",
+        backgroundColor:"#fff",
         borderRadius:20,
         display:"flex",
         flexDirection:"row",
@@ -58,7 +58,7 @@ const Styles = StyleSheet.create({
         marginLeft:0,
         marginTop:10,
         marginRight:70,
-        color:"white",
+        color:"#283148",
         fontWeight:"900"
     },
     review:{
@@ -66,6 +66,7 @@ const Styles = StyleSheet.create({
     },
     reviewText:{
         fontSize:20,
-        color:"white"
+        color:"#283148",
+        fontWeight:"800"
     }
 });

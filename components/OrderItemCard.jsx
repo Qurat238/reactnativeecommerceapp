@@ -28,7 +28,7 @@ const OrderItemCard = (props) => {
             </View>
             <View style={styles.orderItemInfo}>
                 <Text style={styles.subHeading}>Amount:</Text>
-                <Text style={styles.subText}>{props.item.totalPrice}</Text>
+                <Text style={styles.subText}>${props.item.totalPrice}</Text>
             </View>
             </View>
             <View>
@@ -58,30 +58,32 @@ const styles = StyleSheet.create({
       paddingLeft:20,
       paddingBottom:30
     },
-    twoViews:{
-        flexDirection:"row",
-        justifyContent:"flex-start",
-        gap:30
-    },
     orderIdInfo:{
         flexDirection:"row",
         alignItems:"center",
+        justifyContent:"space-between"
+    },
+    orderId:{
+        fontSize:20,
+        fontWeight:"900",
+        color:"#FF9B42"
+    },
+    twoViews:{
+        flexDirection:"row",
+        justifyContent:"flex-start",
+        gap:50
     },
     orderItemInfo:{
         flexDirection:"row",
         alignItems:"center",
         gap:10
     },
-    orderId:{
-        fontSize:20,
-        fontWeight:"900",
-        color:"red"
-    },
     subHeading:{
         fontSize:20,
-        fontWeight:"900"
+        fontWeight:"900",
     },
     subText:{
-        fontSize:19
+        fontSize:17,
+        fontWeight:"600"
     }
 });

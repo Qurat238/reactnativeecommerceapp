@@ -16,7 +16,6 @@ import Loader from './components/Loader';
 import { loadUser } from './reducers/userReducer';
 import Product from './screens/Product';
 import Forgot from './screens/Forgot';
-import Reset from './screens/Reset';
 import UpdatePassword from './screens/UpdatePassword';
 import UpdateProfile from './screens/UpdateProfile';
 import Shipping from './screens/Shipping';
@@ -29,6 +28,11 @@ import AllOrders from './screens/AllOrders';
 import AllUsers from './screens/AllUsers';
 import AllReviews from './screens/AllReviews';
 import CreateProduct from './screens/CreateProduct';
+import ProcessProduct from './screens/ProcessProduct';
+import ProcessUser from './screens/ProcessUser';
+import ProcessOrder from './screens/ProcessOrder';
+import Onboarding from './screens/Onboarding';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Stack = createNativeStackNavigator();
 
@@ -37,9 +41,28 @@ const Main = () => {
   const [stripeApiKey, setStripeApiKey] = useState('');
   const { isAuthenticated, loading } = useSelector(state => state.user);
 
-  
+  const [isAppFirstLaunched, setIsAppFirstLaunched] = useState(null);
+
+  useEffect(() => {
+    const checkAppFirstLaunch = async () => {
+        const appData = await AsyncStorage.getItem('isAppFirstLaunched');
+        if (appData == null) {
+            setIsAppFirstLaunched(true);
+        } else {
+            setIsAppFirstLaunched(false);
+        }
+    };
+
+    checkAppFirstLaunch();
+}, []);
+
+
   useEffect(() => {
     dispatch(loadUser());
+  }, [dispatch])
+  
+
+  useEffect(() => {
     const getStripeApiKey = async () => {
       try {
         const { data } = await axios.get('https://backend-gray-sigma.vercel.app/api/v1/stripeapikey');
@@ -47,24 +70,22 @@ const Main = () => {
       } catch (error) {
         console.error('Error retrieving Stripe API key:', error);
       }
-    };
+    }; 
     if(isAuthenticated) {
-      getStripeApiKey();
+      getStripeApiKey(); 
     }
-  }, [dispatch]);
-
-
-  // if (loading || !stripeApiKey) {
-  //   return <Loader />;
-  // } 
- 
+  }, [stripeApiKey,isAuthenticated]);
+  
   return (
     <NavigationContainer>
-    <Stack.Navigator initialRouteName={isAuthenticated?"home":"login"}>
+      {isAppFirstLaunched === null ? (
+      <Loader />
+    ) : (
+    <Stack.Navigator initialRouteName={isAppFirstLaunched ? "onboarding" : (isAuthenticated ? "home" : "login")}>
+        <Stack.Screen name='onboarding' component={Onboarding} options={{headerShown: false}}/>
         <Stack.Screen name='home' component={Home} options={{headerShown: false}}/>
         <Stack.Screen name='login' component={Login} options={{headerShown: false}}/>
         <Stack.Screen name='forgot' component={Forgot} options={{headerShown: false}}/>
-        <Stack.Screen name='reset' component={Reset} options={{headerShown: false}}/>
         <Stack.Screen name='updatepassword' component={UpdatePassword} options={{headerShown: false}}/>
         <Stack.Screen name='resetpassword' component={ResetPassword} options={{headerShown: false}}/>
         <Stack.Screen name='updateprofile' component={UpdateProfile} options={{headerShown: false}}/>
@@ -91,9 +112,13 @@ const Main = () => {
         <Stack.Screen name='allorders' component={AllOrders} options={{headerShown: false}}/>
         <Stack.Screen name='allusers' component={AllUsers} options={{headerShown: false}}/>
         <Stack.Screen name='allreviews' component={AllReviews} options={{headerShown: false}}/>
+        <Stack.Screen name='processproduct' component={ProcessProduct} options={{headerShown: false}}/>
+        <Stack.Screen name='processuser' component={ProcessUser} options={{headerShown: false}}/>
+        <Stack.Screen name='processorder' component={ProcessOrder} options={{headerShown: false}}/>    
     </Stack.Navigator>
+    )}
   </NavigationContainer>
-  )
+    )
 }
 
 export default Main;
