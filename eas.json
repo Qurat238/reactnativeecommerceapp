@@ -2,11 +2,13 @@
   "cli": {
     "version": ">= 9.2.0"
   },
- "build": {
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
     "preview": {
-      "android": {
-        "buildType": "apk"
-      }
+      "distribution": "internal"
     },
     "production": {}
   },
