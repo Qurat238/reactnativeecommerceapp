@@ -38,7 +38,8 @@
       },
       "permissions": [
         "android.permission.RECORD_AUDIO"
-      ]
+      ],
+      "package": "com.developer167.ecommerceapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
