@@ -38,10 +38,16 @@
       },
       "permissions": [
         "android.permission.RECORD_AUDIO"
-      ]
+      ],
+      "package": "com.developer167.ecommerce"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "077bdd93-73b6-400e-b28a-8fb3e7021ef9"
+      }
     }
   }
 }
