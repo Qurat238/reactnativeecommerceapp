@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "ecommerce-app",
-    "slug": "ecommerce-app",
+    "name": "ecommerce",
+    "slug": "ecommerce",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -39,14 +39,14 @@
       "permissions": [
         "android.permission.RECORD_AUDIO"
       ],
-      "package": "com.developer167.ecommerceapp"
+      "package": "com.developer167.ecommerce"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "df8cd35f-48c8-4a84-aa4e-262768be71b4"
+        "projectId": "077bdd93-73b6-400e-b28a-8fb3e7021ef9"
       }
     }
   }
